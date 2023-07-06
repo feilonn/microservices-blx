@@ -1,5 +1,6 @@
 package com.blx.vendas.services;
 
+import com.blx.vendas.clients.UsuarioClient;
 import com.blx.vendas.dtos.ProdutoRequest;
 import com.blx.vendas.dtos.ProdutoResponse;
 import com.blx.vendas.mapper.ProdutoMapper;
@@ -12,6 +13,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +25,8 @@ public class ProdutoService {
     private final ProdutoRepository repository;
 
     private final ProdutoMapper produtoMapper;
+
+//    private final UsuarioClient usuarioClient;
 
 
     public Page<ProdutoResponse> listar(Pageable pageable) {
@@ -65,4 +70,15 @@ public class ProdutoService {
     public Produto buscarPorId(Long usuarioId) {
         return repository.findById(usuarioId).orElseThrow(() -> new RuntimeException("Produto não encontrado"));
     }
+
+//    public List<ProdutoResponse> buscarTodosProdutosByUsuario(Long usuarioId) {
+//        Boolean existsUsuario = usuarioClient.existsUsuarioById(usuarioId);
+//
+//        if(existsUsuario) {
+//            List<Produto> allProdutosByVendedorId = repository.findAllProdutosByVendedorId(usuarioId);
+//            return produtoMapper.toProdutoResponseList(allProdutosByVendedorId);
+//        }
+//
+//        return Collections.emptyList();
+//    }
 }

@@ -64,4 +64,8 @@ public class UsuarioService {
     private Usuario buscarPorId(Long usuarioId) {
         return repository.findById(usuarioId).orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
     }
+
+    public Boolean existsUsuarioById(Long usuarioId) {
+        return repository.existsUsuarioById(usuarioId);
+    }
 }

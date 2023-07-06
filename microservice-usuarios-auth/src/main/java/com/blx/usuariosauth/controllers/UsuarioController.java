@@ -52,4 +52,9 @@ public class UsuarioController {
             throw new IdentidadeJaUtilizada("Não foi possível deletar o usuario.");
         }
     }
+
+    @GetMapping("exists/{usuarioId}")
+    public Boolean existsUsuarioById(@PathVariable Long usuarioId) {
+        return service.existsUsuarioById(usuarioId);
+    }
 }

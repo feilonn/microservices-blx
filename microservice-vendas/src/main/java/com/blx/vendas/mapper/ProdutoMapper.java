@@ -7,6 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Component
 @RequiredArgsConstructor
 public class ProdutoMapper {
@@ -19,5 +22,9 @@ public class ProdutoMapper {
 
     public Produto toProduto(ProdutoRequest produtoRequest) {
         return modelMapper.map(produtoRequest, Produto.class);
+    }
+
+    public List<ProdutoResponse> toProdutoResponseList(List<Produto> produtos) {
+        return produtos.stream().map(this::toProdutoResponse).collect(Collectors.toList());
     }
 }
