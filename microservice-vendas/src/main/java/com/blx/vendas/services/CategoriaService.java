@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,36 +33,37 @@ public class CategoriaService {
         return new PageImpl<>(listaCategoria);
     }
 
-    public CategoriaResponse buscarCategoriaPorId(Long usuarioId) {
-        Categoria usuario = buscarPorId(usuarioId);
+    public CategoriaResponse buscarCategoriaPorId(Long categoriaId) {
+        Categoria categoria = buscarPorId(categoriaId);
 
-        return categoriaMapper.toCategoriaResponse(usuario);
+        return categoriaMapper.toCategoriaResponse(categoria);
     }
 
-    public CategoriaResponse adicionar(CategoriaRequest usuarioRequest) {
-        Categoria usuarioModel = categoriaMapper.toCategoria(usuarioRequest);
-        Categoria usuarioSalvo = repository.save(usuarioModel);
+    public CategoriaResponse adicionar(CategoriaRequest categoriaRequest) {
+        Categoria categoriaModel = categoriaMapper.toCategoria(categoriaRequest);
+        categoriaModel.setDataCriacao(LocalDateTime.now());
+        Categoria categoriaSalva = repository.save(categoriaModel);
 
-        return categoriaMapper.toCategoriaResponse(usuarioSalvo);
+        return categoriaMapper.toCategoriaResponse(categoriaSalva);
     }
 
-    public CategoriaResponse alterar(Long id, CategoriaRequest usuarioRequest) {
-        Categoria usuario = buscarPorId(id);
-        BeanUtils.copyProperties(usuarioRequest, usuario, "id");
+    public CategoriaResponse alterar(Long id, CategoriaRequest categoriaRequest) {
+        Categoria categoria = buscarPorId(id);
+        BeanUtils.copyProperties(categoriaRequest, categoria, "id");
 
-        Categoria usuarioBanco = repository.save(usuario);
+        Categoria categoriaBanco = repository.save(categoria);
 
-        return categoriaMapper.toCategoriaResponse(usuarioBanco);
+        return categoriaMapper.toCategoriaResponse(categoriaBanco);
     }
 
     public void deletar(Long id) {
-        Categoria usuario = buscarPorId(id);
+        Categoria categoria = buscarPorId(id);
 
-        repository.delete(usuario);
+        repository.delete(categoria);
     }
 
-    private Categoria buscarPorId(Long usuarioId) {
-        return repository.findById(usuarioId).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    private Categoria buscarPorId(Long categoriaId) {
+        return repository.findById(categoriaId).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
 
 

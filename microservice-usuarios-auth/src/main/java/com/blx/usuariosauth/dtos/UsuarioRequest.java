@@ -1,6 +1,6 @@
 package com.blx.usuariosauth.dtos;
 
-import com.blx.usuariosauth.enums.Roles;
+import com.blx.usuariosauth.enums.ERoles;
 import com.blx.usuariosauth.models.Endereco;
 import lombok.*;
 
@@ -31,7 +31,7 @@ public class UsuarioRequest {
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    private Roles role;
+    private ERoles role;
 
     private Endereco endereco;
 }

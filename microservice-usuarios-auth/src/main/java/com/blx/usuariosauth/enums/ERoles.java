@@ -1,4 +1,4 @@
-package com.blx.vendas.enums;
+package com.blx.usuariosauth.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

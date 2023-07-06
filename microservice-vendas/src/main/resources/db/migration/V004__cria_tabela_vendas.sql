@@ -1,4 +1,4 @@
-CREATE TABLE venda (
+CREATE TABLE vendas (
     id bigint AUTO_INCREMENT,
     data_venda DATETIME,
     comprador_id bigint,

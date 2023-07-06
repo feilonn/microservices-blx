@@ -34,10 +34,10 @@ public class ProdutoService {
         return new PageImpl<>(listaUsuario);
     }
 
-    public ProdutoResponse buscarUsuarioPorId(Long usuarioId) {
-        Produto usuario = buscarPorId(usuarioId);
+    public ProdutoResponse buscarProdutoPorId(Long produtoId) {
+        Produto produto = buscarPorId(produtoId);
 
-        return produtoMapper.toProdutoResponse(usuario);
+        return produtoMapper.toProdutoResponse(produto);
     }
 
     public ProdutoResponse adicionar(ProdutoRequest usuarioRequest) {
@@ -62,7 +62,7 @@ public class ProdutoService {
         repository.delete(usuario);
     }
 
-    private Produto buscarPorId(Long usuarioId) {
-        return repository.findById(usuarioId).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    public Produto buscarPorId(Long usuarioId) {
+        return repository.findById(usuarioId).orElseThrow(() -> new RuntimeException("Produto não encontrado"));
     }
 }

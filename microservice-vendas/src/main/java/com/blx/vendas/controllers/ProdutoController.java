@@ -21,8 +21,8 @@ public class ProdutoController {
     }
 
     @GetMapping("{usuarioId}")
-    public ProdutoResponse buscarUsuarioPorId(@PathVariable Long usuarioId) {
-        return service.buscarUsuarioPorId(usuarioId);
+    public ProdutoResponse buscarProdutoPorId(@PathVariable Long usuarioId) {
+        return service.buscarProdutoPorId(usuarioId);
     }
 
     @PostMapping

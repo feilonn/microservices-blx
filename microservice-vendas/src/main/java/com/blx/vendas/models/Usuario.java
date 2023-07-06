@@ -4,11 +4,12 @@ import com.blx.vendas.enums.ERoles;
 import lombok.*;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 
 @Data
 @Builder
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,5 +20,6 @@ public class Usuario {
 
     private String email;
 
+    @Enumerated(EnumType.STRING)
     private ERoles role;
 }

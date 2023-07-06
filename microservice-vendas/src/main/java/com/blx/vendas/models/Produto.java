@@ -1,10 +1,8 @@
 package com.blx.vendas.models;
 
 import com.blx.vendas.enums.EStatus;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -30,6 +28,7 @@ public class Produto {
     @Enumerated(EnumType.STRING)
     private EStatus status;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "vendedor_id", referencedColumnName = "id")
     private Usuario usuario;

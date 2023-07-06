@@ -1,6 +1,6 @@
 package com.blx.usuariosauth.models;
 
-import com.blx.usuariosauth.enums.Roles;
+import com.blx.usuariosauth.enums.ERoles;
 import lombok.*;
 
 import javax.persistence.*;
@@ -27,7 +27,7 @@ public class Usuario {
     private String cpf;
 
     @Enumerated(EnumType.STRING)
-    private Roles role;
+    private ERoles role;
 
     @Embedded
     private Endereco endereco;

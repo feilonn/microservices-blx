@@ -1,22 +1,23 @@
 package com.blx.vendas.dtos;
 
-import com.blx.vendas.enums.EStatus;
+
+import com.blx.vendas.models.Produto;
+import com.blx.vendas.models.Usuario;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CategoriaRequest {
+public class VendasRequest {
 
-    private String titulo;
-
-    private EStatus Status;
+    private List<Produto> produtos;
+    private Usuario usuario;
 
 }

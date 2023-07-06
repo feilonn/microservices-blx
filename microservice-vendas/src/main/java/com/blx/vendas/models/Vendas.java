@@ -23,7 +23,7 @@ public class Vendas {
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime dataVenda;
 
-    @OneToMany(mappedBy = "id")
+    @OneToMany(mappedBy = "id", fetch = FetchType.LAZY)
     private List<Produto> produtos;
 
     @OneToOne
