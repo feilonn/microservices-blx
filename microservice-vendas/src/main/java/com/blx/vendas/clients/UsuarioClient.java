@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(url = "${app.services.ms-usuarios}", name = "ms-usuarios", path = "/usuarios")
 public interface UsuarioClient {
 
-    @GetMapping("/usuarios/exists/{usuarioId}")
+    @GetMapping("exists/{usuarioId}")
     Boolean existsUsuarioById(@PathVariable Long usuarioId);
 }

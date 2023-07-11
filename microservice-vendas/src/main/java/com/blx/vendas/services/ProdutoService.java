@@ -26,10 +26,11 @@ public class ProdutoService {
 
     private final ProdutoMapper produtoMapper;
 
-//    private final UsuarioClient usuarioClient;
+    private final UsuarioClient usuarioClient;
 
 
     public Page<ProdutoResponse> listar(Pageable pageable) {
+        buscarTodosProdutosByUsuario(3L);
         List<ProdutoResponse> listaUsuario = repository
                 .findAll(pageable)
                 .stream()
@@ -71,14 +72,14 @@ public class ProdutoService {
         return repository.findById(usuarioId).orElseThrow(() -> new RuntimeException("Produto não encontrado"));
     }
 
-//    public List<ProdutoResponse> buscarTodosProdutosByUsuario(Long usuarioId) {
-//        Boolean existsUsuario = usuarioClient.existsUsuarioById(usuarioId);
-//
-//        if(existsUsuario) {
-//            List<Produto> allProdutosByVendedorId = repository.findAllProdutosByVendedorId(usuarioId);
-//            return produtoMapper.toProdutoResponseList(allProdutosByVendedorId);
-//        }
-//
-//        return Collections.emptyList();
-//    }
+    public List<ProdutoResponse> buscarTodosProdutosByUsuario(Long usuarioId) {
+        Boolean existsUsuario = usuarioClient.existsUsuarioById(usuarioId);
+
+        if(existsUsuario) {
+            List<Produto> allProdutosByVendedorId = repository.findAllProdutosByVendedorId(usuarioId);
+            return produtoMapper.toProdutoResponseList(allProdutosByVendedorId);
+        }
+
+        return Collections.emptyList();
+    }
 }

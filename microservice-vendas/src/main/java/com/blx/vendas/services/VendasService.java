@@ -1,7 +1,10 @@
 package com.blx.vendas.services;
 
+import com.blx.vendas.clients.UsuarioClient;
+import com.blx.vendas.dtos.ProdutoResponse;
 import com.blx.vendas.dtos.VendasRequest;
 import com.blx.vendas.dtos.VendasResponse;
+import com.blx.vendas.mapper.ProdutoMapper;
 import com.blx.vendas.mapper.VendasMapper;
 import com.blx.vendas.models.Produto;
 import com.blx.vendas.models.Vendas;
@@ -12,8 +15,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +29,10 @@ public class VendasService {
     private final VendasRespository repository;
     private final ProdutoService produtoService;
 
+    private final UsuarioClient usuarioClient;
     private final VendasMapper vendasMapper;
+
+    private final ProdutoMapper produtoMapper;
 
     public Page<VendasResponse> listar(Pageable pageable) {
         List<VendasResponse> listaVendas= repository
@@ -36,6 +44,7 @@ public class VendasService {
         return new PageImpl<>(listaVendas);
     }
 
+    @Transactional
     public VendasResponse adicionar(VendasRequest vendasRequest) {
         Vendas vendasModel = vendasMapper.toVendas(vendasRequest);
 
@@ -56,7 +65,7 @@ public class VendasService {
         vendasModel.setDataVenda(LocalDateTime.now());
 
         vendasModel.setProdutos(produtos);
-
+        System.out.println(vendasModel.getProdutos());
         Vendas vendasSalva = repository.save(vendasModel);
 
         return vendasMapper.toVendasResponse(vendasSalva);
@@ -70,6 +79,21 @@ public class VendasService {
 
     public Vendas buscarPorId(Long vendaId) {
         return repository.findById(vendaId).orElseThrow(() -> new RuntimeException("Venda não encontrada"));
+    }
+
+    public List<ProdutoResponse> buscarProdutosByComprador(Long idComprador) {
+        Boolean existsUsuarioById = usuarioClient.existsUsuarioById(idComprador);
+
+        if (existsUsuarioById) {
+            List<Produto> produtosByCompras = repository.buscarComprasPorUsuario(idComprador).getProdutos();
+
+            return produtosByCompras
+                    .stream()
+                    .map(produtoMapper::toProdutoResponse)
+                    .collect(Collectors.toList());
+        }
+
+        return Collections.emptyList();
     }
 
     private BigDecimal calculaSomatorioTotalVendas(List<BigDecimal> valoresProdutos) {
