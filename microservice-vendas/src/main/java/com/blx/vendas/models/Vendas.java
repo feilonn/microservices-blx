@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Table(name = "vendas")
 public class Vendas {
 
     @Id
@@ -23,11 +24,16 @@ public class Vendas {
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime dataVenda;
 
-    @OneToMany(mappedBy = "id", fetch = FetchType.LAZY)
+    @ManyToMany
+    @JoinTable(
+            name = "vendas_produtos",
+            joinColumns = @JoinColumn(name = "venda_id"),
+            inverseJoinColumns = @JoinColumn(name = "produto_id")
+    )
     private List<Produto> produtos;
 
     @OneToOne
-    @JoinColumn(name = "comprador_id")
+    @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
     private BigDecimal totalCompra;

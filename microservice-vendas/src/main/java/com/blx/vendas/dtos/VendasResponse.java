@@ -19,7 +19,6 @@ import java.util.List;
 public class VendasResponse {
 
     private LocalDateTime dataVenda;
-    private List<Produto> produtos;
     private BigDecimal totalCompra;
     private Usuario usuario;
 

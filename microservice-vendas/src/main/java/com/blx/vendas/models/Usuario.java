@@ -3,16 +3,14 @@ package com.blx.vendas.models;
 import com.blx.vendas.enums.ERoles;
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Data
 @Builder
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "usuarios")
 public class Usuario {
 
     @Id

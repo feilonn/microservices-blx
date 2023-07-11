@@ -1,9 +1,7 @@
 CREATE TABLE vendas (
-    id bigint AUTO_INCREMENT,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
     data_venda DATETIME,
-    comprador_id bigint,
+    usuario_id BIGINT,
     total_compra DECIMAL(10, 2),
-    FOREIGN KEY (comprador_id) REFERENCES usuario (id),
-
-    primary key (id)
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );

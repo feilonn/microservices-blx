@@ -6,12 +6,14 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Table(name = "produtos")
 public class Produto {
 
     @Id
@@ -30,8 +32,12 @@ public class Produto {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "vendedor_id", referencedColumnName = "id")
+    @JoinColumn(name = "usuario_id", referencedColumnName = "id")
     private Usuario usuario;
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "produtos")
+    private List<Vendas> vendas;
 
     @ManyToOne
     @JoinColumn(name = "categoria_id", referencedColumnName = "id")

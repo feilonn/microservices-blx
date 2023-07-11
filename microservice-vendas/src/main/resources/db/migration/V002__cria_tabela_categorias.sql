@@ -1,5 +1,5 @@
 CREATE TABLE
-categoria
+categorias
 (
     ID BIGINT       NOT NULL AUTO_INCREMENT,
     TITULO          VARCHAR(255) NOT NULL,
