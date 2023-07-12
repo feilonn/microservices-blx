@@ -44,6 +44,7 @@ public class ProdutoController {
         service.deletar(id);
     }
 
+    //TODO Corrigir status de resposta (404, no content) quando o usuário nao existir
     @GetMapping("/produtos-vendedor/{idVendedor}")
     public List<ProdutoResponse> buscarTodosProdutosByUsuario(@PathVariable Long idVendedor) {
         return service.buscarTodosProdutosByUsuario(idVendedor);

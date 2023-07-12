@@ -41,8 +41,8 @@ public class VendasController {
         return service.buscarVendaPorId(vendaId);
     }
 
-    @GetMapping("compras-by-usuario/{idComprador}")
-    public List<ProdutoResponse> buscarProdutosByComprador(@PathVariable Long idComprador) {
-        return service.buscarProdutosByComprador(idComprador);
+    @GetMapping("/compras-cliente/{idCliente}")
+    public List<ProdutoResponse> buscarProdutosByComprador(@PathVariable Long idCliente) {
+        return service.buscarProdutosByComprador(idCliente);
     }
 }

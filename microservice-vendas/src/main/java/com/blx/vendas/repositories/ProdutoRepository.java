@@ -8,7 +8,8 @@ import java.util.List;
 
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
 
-    @Query(nativeQuery = true, value = "SELECT p.* FROM produto p INNER JOIN usuario u ON p.vendedor_id = u.id AND u.id = :usuarioId AND p.status = 'ATIVO'")
+    @Query(nativeQuery = true, value = "SELECT p.* FROM produtos p INNER JOIN usuarios u ON p.usuario_id = u.id" +
+            " AND u.id = :usuarioId AND p.status = 'ATIVO'")
     List<Produto> findAllProdutosByVendedorId(Long usuarioId);
 
 }

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -85,9 +86,14 @@ public class VendasService {
         Boolean existsUsuarioById = usuarioClient.existsUsuarioById(idComprador);
 
         if (existsUsuarioById) {
-            List<Produto> produtosByCompras = repository.buscarComprasPorUsuario(idComprador).getProdutos();
+            List<Vendas> vendasByComprador = repository.buscarComprasPorUsuario(idComprador);
 
-            return produtosByCompras
+            List<Produto> produtosFromVenda = vendasByComprador.stream()
+                    .map(Vendas::getProdutos)
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList());
+
+            return produtosFromVenda
                     .stream()
                     .map(produtoMapper::toProdutoResponse)
                     .collect(Collectors.toList());
