@@ -100,6 +100,10 @@ public class VendasService {
         }
     }
 
+    public List<Vendas> buscarTodasVendasByVendedor(Long idVendedor) {
+        return repository.buscarComprasPorUsuario(idVendedor);
+    }
+
     private BigDecimal calculaSomatorioTotalVendas(List<BigDecimal> valoresProdutos) {
 
         return valoresProdutos.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
