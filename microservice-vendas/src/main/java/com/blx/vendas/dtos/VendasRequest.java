@@ -19,5 +19,4 @@ public class VendasRequest {
 
     private List<Produto> produtos;
     private Usuario usuario;
-
 }

@@ -62,6 +62,10 @@ public class CategoriaService {
         repository.delete(categoria);
     }
 
+    public Boolean existsCategoriaById(Long id) {
+        return repository.existsCategoriaById(id);
+    }
+
     private Categoria buscarPorId(Long categoriaId) {
         return repository.findById(categoriaId).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }

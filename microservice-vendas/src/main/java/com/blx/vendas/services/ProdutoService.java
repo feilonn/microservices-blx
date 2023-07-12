@@ -3,6 +3,9 @@ package com.blx.vendas.services;
 import com.blx.vendas.clients.UsuarioClient;
 import com.blx.vendas.dtos.ProdutoRequest;
 import com.blx.vendas.dtos.ProdutoResponse;
+import com.blx.vendas.enums.EStatus;
+import com.blx.vendas.exceptions.BadRequestException;
+import com.blx.vendas.exceptions.RecursoNaoEncontradoException;
 import com.blx.vendas.mapper.ProdutoMapper;
 import com.blx.vendas.models.Produto;
 import com.blx.vendas.repositories.ProdutoRepository;
@@ -13,7 +16,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,12 +30,15 @@ public class ProdutoService {
 
     private final UsuarioClient usuarioClient;
 
+    private final CategoriaService categoriaService;
+
 
     public Page<ProdutoResponse> listar(Pageable pageable) {
         buscarTodosProdutosByUsuario(3L);
         List<ProdutoResponse> listaUsuario = repository
                 .findAll(pageable)
                 .stream()
+                .filter(produto -> produto.getStatus() == EStatus.ATIVO)
                 .map(produtoMapper::toProdutoResponse)
                 .collect(Collectors.toList());
 
@@ -75,11 +80,36 @@ public class ProdutoService {
     public List<ProdutoResponse> buscarTodosProdutosByUsuario(Long usuarioId) {
         Boolean existsUsuario = usuarioClient.existsUsuarioById(usuarioId);
 
-        if(existsUsuario) {
+        if (existsUsuario) {
             List<Produto> allProdutosByVendedorId = repository.findAllProdutosByVendedorId(usuarioId);
             return produtoMapper.toProdutoResponseList(allProdutosByVendedorId);
         }
 
         return Collections.emptyList();
+    }
+
+    public List<ProdutoResponse> buscarProdutoPorCategoria(Long idCategoria) {
+        Boolean existsCategoriaById = categoriaService.existsCategoriaById(idCategoria);
+
+        if (existsCategoriaById) {
+            return repository.findProdutoByCategoriaId(idCategoria)
+                    .stream()
+                    .map(produtoMapper::toProdutoResponse)
+                    .collect(Collectors.toList());
+        }
+
+        throw new RecursoNaoEncontradoException(String.format("A categoria com o id %d, não foi encontrada.", idCategoria));
+    }
+
+    public void alteraStatusProduto(Long id, EStatus status) {
+        Produto produto = buscarPorId(id);
+
+        if (produto.getStatus() == status) {
+            throw new BadRequestException(String.format("O produto ja se encontra com o status %s", status.getDescricao()));
+        }
+
+        produto.setStatus(status);
+
+        repository.save(produto);
     }
 }

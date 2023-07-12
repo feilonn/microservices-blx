@@ -4,6 +4,7 @@ import com.blx.vendas.clients.UsuarioClient;
 import com.blx.vendas.dtos.ProdutoResponse;
 import com.blx.vendas.dtos.VendasRequest;
 import com.blx.vendas.dtos.VendasResponse;
+import com.blx.vendas.exceptions.RecursoNaoEncontradoException;
 import com.blx.vendas.mapper.ProdutoMapper;
 import com.blx.vendas.mapper.VendasMapper;
 import com.blx.vendas.models.Produto;
@@ -19,7 +20,6 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,7 +45,6 @@ public class VendasService {
         return new PageImpl<>(listaVendas);
     }
 
-    @Transactional
     public VendasResponse adicionar(VendasRequest vendasRequest) {
         Vendas vendasModel = vendasMapper.toVendas(vendasRequest);
 
@@ -66,7 +65,6 @@ public class VendasService {
         vendasModel.setDataVenda(LocalDateTime.now());
 
         vendasModel.setProdutos(produtos);
-        System.out.println(vendasModel.getProdutos());
         Vendas vendasSalva = repository.save(vendasModel);
 
         return vendasMapper.toVendasResponse(vendasSalva);
@@ -97,9 +95,9 @@ public class VendasService {
                     .stream()
                     .map(produtoMapper::toProdutoResponse)
                     .collect(Collectors.toList());
+        } else {
+            throw new RecursoNaoEncontradoException(String.format("Comprador com id %d não foi encontrado", idComprador));
         }
-
-        return Collections.emptyList();
     }
 
     private BigDecimal calculaSomatorioTotalVendas(List<BigDecimal> valoresProdutos) {

@@ -12,4 +12,5 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
             " AND u.id = :usuarioId AND p.status = 'ATIVO'")
     List<Produto> findAllProdutosByVendedorId(Long usuarioId);
 
+    List<Produto> findProdutoByCategoriaId(Long idCategoria);
 }
