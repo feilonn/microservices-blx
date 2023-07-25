@@ -16,7 +16,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -36,6 +35,7 @@ public class VendasService {
     private final ProdutoMapper produtoMapper;
 
     public Page<VendasResponse> listar(Pageable pageable) {
+        buscarTodasComprasByComprador(1L);
         List<VendasResponse> listaVendas= repository
                 .findAll(pageable)
                 .stream()
@@ -100,8 +100,8 @@ public class VendasService {
         }
     }
 
-    public List<Vendas> buscarTodasVendasByVendedor(Long idVendedor) {
-        return repository.buscarComprasPorUsuario(idVendedor);
+    public List<Vendas> buscarTodasComprasByComprador(Long idComprador) {
+        return repository.buscarComprasPorUsuario(idComprador);
     }
 
     private BigDecimal calculaSomatorioTotalVendas(List<BigDecimal> valoresProdutos) {
