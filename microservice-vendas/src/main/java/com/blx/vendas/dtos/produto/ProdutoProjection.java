@@ -12,5 +12,4 @@ public interface ProdutoProjection {
     BigDecimal getValor();
     EStatus getStatus();
     Usuario getUsuario();
-
 }

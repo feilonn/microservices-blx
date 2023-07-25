@@ -1,10 +1,12 @@
 package com.blx.vendas.services;
 
 import com.blx.vendas.clients.UsuarioClient;
-import com.blx.vendas.dtos.ProdutoResponse;
 import com.blx.vendas.dtos.RelatorioComprador;
 import com.blx.vendas.dtos.produto.ProdutoProjection;
+import com.blx.vendas.dtos.relatorios.RelatorioProdutoCollection;
+import com.blx.vendas.dtos.usuario.UsuarioResponse;
 import com.blx.vendas.mapper.ProdutoMapper;
+import com.blx.vendas.models.Usuario;
 import com.blx.vendas.repositories.VendasRespository;
 import lombok.RequiredArgsConstructor;
 import net.sf.jasperreports.engine.JasperExportManager;
@@ -21,6 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +37,7 @@ public class RelatoriosService {
 
     public void gerarRelatorioComprasByUsuario(HttpServletResponse response) {
         try {
-            InputStream resourceAsStream = new FileInputStream("C:\\Users\\Maycon\\Desktop\\Projeto spring wipro\\microservices-blx\\microservice-vendas\\src\\main\\resources\\relatorios\\relatorio_comprador_3.jasper");
+            InputStream resourceAsStream = new FileInputStream("/relatorios/relatorio_comprador_3.jasper");
             HashMap<String, Object> parametros = new HashMap<>();
             parametros.put("REPORT_LOCALE", new Locale("pt", "BR"));
 
@@ -58,13 +61,45 @@ public class RelatoriosService {
         }
     }
 
-    public List<ProdutoResponse> buscarProdutosVendidosPorUsuario(Long idUsuario) {
+    public void gerarRelatorioProdutosVendidosByUsuario(Long idUsuario, HttpServletResponse response) {
+        try {
+            InputStream resourceAsStream = this.getClass()
+                    .getResourceAsStream("/relatorios/relatorio_produtos_vendidos.jasper");
+            HashMap<String, Object> parametros = new HashMap<>();
+            parametros.put("REPORT_LOCALE", new Locale("pt", "BR"));
+
+            List<RelatorioProdutoCollection> produtoResponse = buscarProdutosVendidosPorUsuario(idUsuario);
+
+            var dados = new JRBeanCollectionDataSource(produtoResponse);
+            var jasperReport = (JasperReport) JRLoader.loadObject(resourceAsStream);
+
+            response.setContentType("application/x-pdf");
+            response.setHeader("content-disposition", "inline; filename=relatorio_produtos_vendidos.pdf");
+            OutputStream outputStream = response.getOutputStream();
+
+            var jasperPrint = JasperFillManager.fillReport(jasperReport, parametros, dados);
+
+            JasperExportManager.exportReportToPdfStream(jasperPrint, outputStream);
+        } catch (Exception ex) {
+            throw new RuntimeException("Erro ao gerar relatório ", ex);
+        }
+    }
+
+    public List<RelatorioProdutoCollection> buscarProdutosVendidosPorUsuario(Long idUsuario) {
         Boolean existsUsuario = usuarioClient.existsUsuarioById(idUsuario);
         if(existsUsuario) {
+            UsuarioResponse usuarioResponse = usuarioClient.buscarPorId(idUsuario);
+
+
             List<ProdutoProjection> results = new ArrayList<>(repository.buscarProdutosVendidosPorUsuario(idUsuario));
 
             return results.stream()
-                    .map(produtoProjection -> modelMapper.map(produtoProjection, ProdutoResponse.class))
+                    .map(produtoProjection -> new RelatorioProdutoCollection(
+                            produtoProjection.getDescricao(),
+                            produtoProjection.getTitulo(),
+                            produtoProjection.getValor(),
+                            produtoProjection.getStatus().getDescricao(),
+                            usuarioResponse.getNome()))
                     .collect(Collectors.toList());
         }
 
