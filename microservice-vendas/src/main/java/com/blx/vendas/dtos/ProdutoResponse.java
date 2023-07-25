@@ -20,5 +20,5 @@ public class ProdutoResponse {
     private String titulo;
     private BigDecimal valor;
     private EStatus status;
-    private Categoria categoria;
+//    private Categoria categoria;
 }

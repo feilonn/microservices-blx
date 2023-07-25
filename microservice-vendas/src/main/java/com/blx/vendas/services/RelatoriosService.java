@@ -1,23 +1,25 @@
 package com.blx.vendas.services;
 
+import com.blx.vendas.clients.UsuarioClient;
+import com.blx.vendas.dtos.ProdutoResponse;
 import com.blx.vendas.dtos.RelatorioComprador;
+import com.blx.vendas.dtos.produto.ProdutoProjection;
+import com.blx.vendas.mapper.ProdutoMapper;
+import com.blx.vendas.repositories.VendasRespository;
 import lombok.RequiredArgsConstructor;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.util.JRLoader;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.time.LocalDate;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +27,10 @@ import java.util.stream.Collectors;
 public class RelatoriosService {
 
     private final VendasService vendasService;
+    private final VendasRespository repository;
+    private final ProdutoMapper produtoMapper;
+    private final ModelMapper modelMapper;
+    private final UsuarioClient usuarioClient;
 
     public void gerarRelatorioComprasByUsuario(HttpServletResponse response) {
         try {
@@ -52,4 +58,16 @@ public class RelatoriosService {
         }
     }
 
+    public List<ProdutoResponse> buscarProdutosVendidosPorUsuario(Long idUsuario) {
+        Boolean existsUsuario = usuarioClient.existsUsuarioById(idUsuario);
+        if(existsUsuario) {
+            List<ProdutoProjection> results = new ArrayList<>(repository.buscarProdutosVendidosPorUsuario(idUsuario));
+
+            return results.stream()
+                    .map(produtoProjection -> modelMapper.map(produtoProjection, ProdutoResponse.class))
+                    .collect(Collectors.toList());
+        }
+
+        return Collections.emptyList();
+    }
 }
