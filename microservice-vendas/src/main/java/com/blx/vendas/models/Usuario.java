@@ -17,6 +17,7 @@ public class Usuario {
     private Long id;
 
     private String email;
+    private String nome;
 
     @Enumerated(EnumType.STRING)
     private ERoles role;

@@ -6,6 +6,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,8 +19,8 @@ public class RelatoriosController {
 
     private final RelatoriosService service;
 
-    @GetMapping(value = "comprador", produces = MediaType.APPLICATION_PDF_VALUE)
-    public void gerarRelatorioComprasByUsuario(HttpServletResponse response) {
-        service.gerarRelatorioComprasByUsuario(response);
+    @GetMapping(value = "comprador/{idComprador}", produces = MediaType.APPLICATION_PDF_VALUE)
+    public void gerarRelatorioComprasByUsuario(@PathVariable Long idComprador, HttpServletResponse response) {
+        service.gerarRelatorioComprasByUsuario(idComprador, response);
     }
 }

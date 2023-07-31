@@ -5,6 +5,7 @@ import com.blx.vendas.dtos.ProdutoResponse;
 import com.blx.vendas.dtos.RelatorioComprador;
 import com.blx.vendas.dtos.produto.ProdutoProjection;
 import com.blx.vendas.mapper.ProdutoMapper;
+import com.blx.vendas.models.Produto;
 import com.blx.vendas.repositories.VendasRespository;
 import lombok.RequiredArgsConstructor;
 import net.sf.jasperreports.engine.JasperExportManager;
@@ -16,9 +17,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,16 +33,23 @@ public class RelatoriosService {
     private final ModelMapper modelMapper;
     private final UsuarioClient usuarioClient;
 
-    public void gerarRelatorioComprasByUsuario(HttpServletResponse response) {
+    public void gerarRelatorioComprasByUsuario(Long idComprador, HttpServletResponse response) {
         try {
-            InputStream resourceAsStream = new FileInputStream("C:\\Users\\Maycon\\Desktop\\Projeto spring wipro\\microservices-blx\\microservice-vendas\\src\\main\\resources\\relatorios\\relatorio_comprador_3.jasper");
+            InputStream resourceAsStream = this
+                    .getClass()
+                    .getResourceAsStream("/relatorios/relatorio_comprador.jasper");
             HashMap<String, Object> parametros = new HashMap<>();
-            parametros.put("REPORT_LOCALE", new Locale("pt", "BR"));
 
-            var compras = vendasService.buscarTodasComprasByComprador(1L);
+            var compras = vendasService.buscarTodasComprasByComprador(idComprador);
+            ZoneOffset zoneOffSet= ZoneOffset.of("-03:00");
             var listaDto = compras
                     .stream()
-                    .map(venda -> new RelatorioComprador(venda.getId(), new Date(2023, 1, 05)))
+                    .map(compra -> new RelatorioComprador(compra.getId(),
+                            compra.getUsuario().getNome(),
+                            compra.getTotalCompra(),
+                            Date
+                            .from(compra.getDataVenda().toInstant(zoneOffSet)),
+                            produtosToString(compra.getProdutos())))
                     .collect(Collectors.toList());
             var dados = new JRBeanCollectionDataSource(listaDto);
             var jasperReport = (JasperReport) JRLoader.loadObject(resourceAsStream);
@@ -58,9 +66,16 @@ public class RelatoriosService {
         }
     }
 
+    private String produtosToString(List<Produto> produtos) {
+            return produtos
+                .stream()
+                .map(e -> e.getTitulo() + " - " + "R$" + e.getValor())
+                .collect(Collectors.joining("\n"));
+    }
+
     public List<ProdutoResponse> buscarProdutosVendidosPorUsuario(Long idUsuario) {
         Boolean existsUsuario = usuarioClient.existsUsuarioById(idUsuario);
-        if(existsUsuario) {
+        if (existsUsuario) {
             List<ProdutoProjection> results = new ArrayList<>(repository.buscarProdutosVendidosPorUsuario(idUsuario));
 
             return results.stream()
