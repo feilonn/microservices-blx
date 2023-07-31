@@ -1,9 +1,10 @@
 package com.blx.vendas.services;
 
 import com.blx.vendas.clients.UsuarioClient;
-import com.blx.vendas.dtos.ProdutoResponse;
 import com.blx.vendas.dtos.RelatorioComprador;
 import com.blx.vendas.dtos.produto.ProdutoProjection;
+import com.blx.vendas.dtos.relatorios.RelatorioProdutoCollection;
+import com.blx.vendas.dtos.usuario.UsuarioResponse;
 import com.blx.vendas.mapper.ProdutoMapper;
 import com.blx.vendas.models.Produto;
 import com.blx.vendas.repositories.VendasRespository;
@@ -66,23 +67,55 @@ public class RelatoriosService {
         }
     }
 
-    private String produtosToString(List<Produto> produtos) {
-            return produtos
-                .stream()
-                .map(e -> e.getTitulo() + " - " + "R$" + e.getValor())
-                .collect(Collectors.joining("\n"));
+    public void gerarRelatorioProdutosVendidosByUsuario(Long idUsuario, HttpServletResponse response) {
+        try {
+            InputStream resourceAsStream = this.getClass()
+                    .getResourceAsStream("/relatorios/relatorio_produtos_vendidos.jasper");
+            HashMap<String, Object> parametros = new HashMap<>();
+            parametros.put("REPORT_LOCALE", new Locale("pt", "BR"));
+
+            List<RelatorioProdutoCollection> produtoResponse = buscarProdutosVendidosPorUsuario(idUsuario);
+
+            var dados = new JRBeanCollectionDataSource(produtoResponse);
+            var jasperReport = (JasperReport) JRLoader.loadObject(resourceAsStream);
+
+            response.setContentType("application/x-pdf");
+            response.setHeader("content-disposition", "inline; filename=relatorio_produtos_vendidos.pdf");
+            OutputStream outputStream = response.getOutputStream();
+
+            var jasperPrint = JasperFillManager.fillReport(jasperReport, parametros, dados);
+
+            JasperExportManager.exportReportToPdfStream(jasperPrint, outputStream);
+        } catch (Exception ex) {
+            throw new RuntimeException("Erro ao gerar relatório ", ex);
+        }
     }
 
-    public List<ProdutoResponse> buscarProdutosVendidosPorUsuario(Long idUsuario) {
+    public List<RelatorioProdutoCollection> buscarProdutosVendidosPorUsuario(Long idUsuario) {
         Boolean existsUsuario = usuarioClient.existsUsuarioById(idUsuario);
-        if (existsUsuario) {
+        if(existsUsuario) {
+            UsuarioResponse usuarioResponse = usuarioClient.buscarPorId(idUsuario);
+
+
             List<ProdutoProjection> results = new ArrayList<>(repository.buscarProdutosVendidosPorUsuario(idUsuario));
 
             return results.stream()
-                    .map(produtoProjection -> modelMapper.map(produtoProjection, ProdutoResponse.class))
+                    .map(produtoProjection -> new RelatorioProdutoCollection(
+                            produtoProjection.getDescricao(),
+                            produtoProjection.getTitulo(),
+                            produtoProjection.getValor(),
+                            produtoProjection.getStatus().getDescricao(),
+                            usuarioResponse.getNome()))
                     .collect(Collectors.toList());
         }
 
         return Collections.emptyList();
+    }
+
+    private String produtosToString(List<Produto> produtos) {
+        return produtos
+                .stream()
+                .map(e -> e.getTitulo() + " - " + "R$" + e.getValor())
+                .collect(Collectors.joining("\n"));
     }
 }

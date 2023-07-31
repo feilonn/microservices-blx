@@ -3,6 +3,7 @@ package com.blx.vendas.services;
 import com.blx.vendas.clients.UsuarioClient;
 import com.blx.vendas.dtos.ProdutoRequest;
 import com.blx.vendas.dtos.ProdutoResponse;
+import com.blx.vendas.dtos.produto.ProdutoProjection;
 import com.blx.vendas.enums.EStatus;
 import com.blx.vendas.exceptions.BadRequestException;
 import com.blx.vendas.exceptions.RecursoNaoEncontradoException;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -112,4 +114,5 @@ public class ProdutoService {
 
         repository.save(produto);
     }
+
 }
