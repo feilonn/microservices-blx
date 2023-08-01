@@ -79,6 +79,14 @@ public class ProdutoService {
         return repository.findById(usuarioId).orElseThrow(() -> new RuntimeException("Produto não encontrado"));
     }
 
+    public List<Produto> buscarProdutosById(List<Long> produtoIds) {
+        return produtoIds
+                .stream()
+                .map(id -> repository.findById(id).orElse(null))
+                .collect(Collectors.toList());
+
+    }
+
     public List<ProdutoResponse> buscarTodosProdutosByUsuario(Long usuarioId) {
         Boolean existsUsuario = usuarioClient.existsUsuarioById(usuarioId);
 

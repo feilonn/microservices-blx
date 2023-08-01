@@ -6,6 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -37,4 +38,8 @@ public class Vendas {
     private Usuario usuario;
 
     private BigDecimal totalCompra;
+
+    private LocalDateTime dataEnvioTxt;
+
+    private Boolean isFromTxt;
 }
