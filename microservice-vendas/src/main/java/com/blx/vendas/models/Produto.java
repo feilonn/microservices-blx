@@ -1,6 +1,7 @@
 package com.blx.vendas.models;
 
 import com.blx.vendas.enums.EStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
@@ -36,7 +37,8 @@ public class Produto {
     private Usuario usuario;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "produtos")
+    @ManyToMany(mappedBy = "produtos", fetch = FetchType.LAZY)
+    @JsonBackReference
     private List<Vendas> vendas;
 
     @ManyToOne

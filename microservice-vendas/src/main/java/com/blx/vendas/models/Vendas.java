@@ -1,5 +1,6 @@
 package com.blx.vendas.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -31,6 +32,7 @@ public class Vendas {
             joinColumns = @JoinColumn(name = "venda_id"),
             inverseJoinColumns = @JoinColumn(name = "produto_id")
     )
+    @JsonBackReference
     private List<Produto> produtos;
 
     @OneToOne

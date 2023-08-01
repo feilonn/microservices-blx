@@ -7,6 +7,7 @@ import com.blx.vendas.dtos.relatorios.RelatorioProdutoCollection;
 import com.blx.vendas.dtos.usuario.UsuarioResponse;
 import com.blx.vendas.mapper.ProdutoMapper;
 import com.blx.vendas.models.Produto;
+import com.blx.vendas.models.Usuario;
 import com.blx.vendas.models.Vendas;
 import com.blx.vendas.repositories.VendasRespository;
 import com.blx.vendas.utils.RelatorioUtils;
@@ -27,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.ParameterizedType;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -105,18 +107,24 @@ public class RelatoriosService {
                             .forEach(field -> {
                                 Integer indiceCampo = indiceCampos.get(field.getName());
                                 String valor = valores.get(indiceCampo);
+                                String[] listaCamposPorLinha = valor.split(";");
                                 if (!StringUtils.isEmpty(valor)) {
                                     try {
                                         field.setAccessible(true);
                                         if (field.getType() == LocalDateTime.class) {
-                                            var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-                                            field.set(venda, LocalDateTime.parse(valor, formatter).toLocalDate().atStartOfDay());
+                                            var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                                            field.set(venda, LocalDate.parse(listaCamposPorLinha[indiceCampo],
+                                                    formatter).atStartOfDay());
                                         } else if (field.getType() == String.class) {
-                                            field.set(venda, valor);
-                                        } else if (field.getType() == Long.class) {
-                                            field.set(valor, Long.parseLong(valor));
+                                            field.set(venda, listaCamposPorLinha[indiceCampo]);
+                                        } else if (field.getType() == Usuario.class) {
+                                            var idUsuario = Long.parseLong(listaCamposPorLinha[indiceCampo]);
+                                            var usuarioResponse = usuarioClient.buscarPorId(idUsuario);
+                                            var usuario = new Usuario(idUsuario, usuarioResponse.getEmail(),
+                                                    usuarioResponse.getNome(), usuarioResponse.getRole());
+                                            field.set(venda, usuario);
                                         } else if (field.getType() == List.class && field.getGenericType() instanceof ParameterizedType) {
-                                            String[] idsProdutos = valor.split("-");
+                                            String[] idsProdutos = listaCamposPorLinha[indiceCampo].split("-");
                                             List<Long> listaDeIdsConvertidos = Arrays.stream(idsProdutos)
                                                     .map(Long::parseLong)
                                                     .collect(Collectors.toList());
