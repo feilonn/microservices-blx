@@ -36,7 +36,9 @@ public class ArquivosService {
         Map<String, Integer> camposMapeados = mapearIndiceCampos(cabecalho.split(";"));
         List<String> conteudoArquivo = linhasArquivos.stream().skip(1).collect(Collectors.toList());
 
-        var teste = criarVendasComCampos(conteudoArquivo, camposMapeados);
+        List<Vendas> vendasFromTxt = criarVendasComCampos(conteudoArquivo, camposMapeados);
+
+//        System.out.println(vendasFromTxt);
     }
 
     private List<Vendas> criarVendasComCampos(List<String> valores, Map<String, Integer> indiceCampos) {
@@ -46,9 +48,7 @@ public class ArquivosService {
                 .forEach(linhaTxt -> {
                     Vendas venda = new Vendas();
                     Arrays.stream(Vendas.class.getDeclaredFields())
-                            .filter(field -> {
-                                return indiceCampos.containsKey(field.getName());
-                            })
+                            .filter(field -> indiceCampos.containsKey(field.getName()))
                             .forEach(field -> {
                                 Integer indiceCampo = indiceCampos.get(field.getName());
                                 if(indiceCampo < valores.size()) {
@@ -84,6 +84,8 @@ public class ArquivosService {
                                 }
 
                             });
+                    venda.setIsFromTxt(true);
+                    venda.setDataEnvioTxt(LocalDateTime.now());
                     listaParaPreencher.add(venda);
                 });
         return listaParaPreencher;
