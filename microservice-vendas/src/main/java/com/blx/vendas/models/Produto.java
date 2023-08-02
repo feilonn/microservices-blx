@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = false)
 @Table(name = "produtos")
 public class Produto {
 
@@ -38,7 +39,7 @@ public class Produto {
 
     @JsonIgnore
     @ManyToMany(mappedBy = "produtos", fetch = FetchType.LAZY)
-    @JsonBackReference
+    @ToString.Exclude
     private List<Vendas> vendas;
 
     @ManyToOne

@@ -102,43 +102,46 @@ public class RelatoriosService {
                     Vendas venda = new Vendas();
                     Arrays.stream(Vendas.class.getDeclaredFields())
                             .filter(field -> {
+                                System.out.println(field.getName());
                                 return indiceCampos.containsKey(field.getName());
                             })
                             .forEach(field -> {
                                 Integer indiceCampo = indiceCampos.get(field.getName());
-                                String valor = valores.get(indiceCampo);
-                                String[] listaCamposPorLinha = valor.split(";");
-                                if (!StringUtils.isEmpty(valor)) {
-                                    try {
-                                        field.setAccessible(true);
-                                        if (field.getType() == LocalDateTime.class) {
-                                            var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                                            field.set(venda, LocalDate.parse(listaCamposPorLinha[indiceCampo],
-                                                    formatter).atStartOfDay());
-                                        } else if (field.getType() == String.class) {
-                                            field.set(venda, listaCamposPorLinha[indiceCampo]);
-                                        } else if (field.getType() == Usuario.class) {
-                                            var idUsuario = Long.parseLong(listaCamposPorLinha[indiceCampo]);
-                                            var usuarioResponse = usuarioClient.buscarPorId(idUsuario);
-                                            var usuario = new Usuario(idUsuario, usuarioResponse.getEmail(),
-                                                    usuarioResponse.getNome(), usuarioResponse.getRole());
-                                            field.set(venda, usuario);
-                                        } else if (field.getType() == List.class && field.getGenericType() instanceof ParameterizedType) {
-                                            String[] idsProdutos = listaCamposPorLinha[indiceCampo].split("-");
-                                            List<Long> listaDeIdsConvertidos = Arrays.stream(idsProdutos)
-                                                    .map(Long::parseLong)
-                                                    .collect(Collectors.toList());
-                                            List<Produto> produtosById = produtoService.buscarProdutosById(listaDeIdsConvertidos);
-                                            field.set(venda, produtosById);
+                                if(indiceCampo < valores.size()) {
+                                    String valor = valores.get((int) linhaTxt);
+                                    String[] listaCamposPorLinha = valor.split(";");
+                                    if (!StringUtils.isEmpty(valor) && indiceCampo < listaCamposPorLinha.length) {
+                                        try {
+                                            field.setAccessible(true);
+                                            if (field.getType() == LocalDateTime.class) {
+                                                var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                                                field.set(venda, LocalDate.parse(listaCamposPorLinha[indiceCampo],
+                                                        formatter).atStartOfDay());
+                                            } else if (field.getType() == String.class) {
+                                                field.set(venda, listaCamposPorLinha[indiceCampo]);
+                                            } else if (field.getType() == Usuario.class) {
+                                                var idUsuario = Long.parseLong(listaCamposPorLinha[indiceCampo]);
+                                                var usuarioResponse = usuarioClient.buscarPorId(idUsuario);
+                                                var usuario = new Usuario(idUsuario, usuarioResponse.getEmail(),
+                                                        usuarioResponse.getNome(), usuarioResponse.getRole());
+                                                field.set(venda, usuario);
+                                            } else if (field.getType() == List.class && field.getGenericType() instanceof ParameterizedType) {
+                                                String[] idsProdutos = listaCamposPorLinha[indiceCampo].split("-");
+                                                List<Long> listaDeIdsConvertidos = Arrays.stream(idsProdutos)
+                                                        .map(Long::parseLong)
+                                                        .collect(Collectors.toList());
+                                                List<Produto> produtosById = produtoService.buscarProdutosById(listaDeIdsConvertidos);
+                                                field.set(venda, produtosById);
+                                            }
+                                        } catch (IllegalAccessException e) {
+                                            e.printStackTrace();
                                         }
-                                    } catch (IllegalAccessException e) {
-                                        e.printStackTrace();
                                     }
                                 }
+
                             });
                     listaParaPreencher.add(venda);
                 });
-
         return listaParaPreencher;
     }
 
