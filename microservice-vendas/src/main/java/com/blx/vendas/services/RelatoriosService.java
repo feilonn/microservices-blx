@@ -47,12 +47,8 @@ public class RelatoriosService {
     private final ModelMapper modelMapper;
     private final UsuarioClient usuarioClient;
 
-    @Value(value = "${app.caminhos.arquivoTxt}")
-    private String caminhoArquivoTxt;
-
     public void gerarRelatorioComprasByUsuario(Long idComprador, HttpServletResponse response) {
         try {
-            salvarDadosTxtNoBanco();
             InputStream resourceAsStream = this
                     .getClass()
                     .getResourceAsStream("/relatorios/relatorio_comprador.jasper");
@@ -82,75 +78,6 @@ public class RelatoriosService {
         } catch (Exception ex) {
             throw new RuntimeException("Erro ao gerar relatório", ex);
         }
-    }
-
-    public void salvarDadosTxtNoBanco() {
-        ClassPathResource path = new ClassPathResource(caminhoArquivoTxt);
-        List<String> linhasArquivos = RelatorioUtils.lerArquivoTxt(path);
-        String cabecalho = linhasArquivos.get(0);
-        Map<String, Integer> camposMapeados = mapearIndiceCampos(cabecalho.split(";"));
-        List<String> conteudoArquivo = linhasArquivos.stream().skip(1).collect(Collectors.toList());
-
-        var teste = criarVendasComCampos(conteudoArquivo, camposMapeados);
-    }
-
-    private List<Vendas> criarVendasComCampos(List<String> valores, Map<String, Integer> indiceCampos) {
-        List<Vendas> listaParaPreencher = new ArrayList<>();
-
-        LongStream.range(0, valores.size())
-                .forEach(linhaTxt -> {
-                    Vendas venda = new Vendas();
-                    Arrays.stream(Vendas.class.getDeclaredFields())
-                            .filter(field -> {
-                                System.out.println(field.getName());
-                                return indiceCampos.containsKey(field.getName());
-                            })
-                            .forEach(field -> {
-                                Integer indiceCampo = indiceCampos.get(field.getName());
-                                if(indiceCampo < valores.size()) {
-                                    String valor = valores.get((int) linhaTxt);
-                                    String[] listaCamposPorLinha = valor.split(";");
-                                    if (!StringUtils.isEmpty(valor) && indiceCampo < listaCamposPorLinha.length) {
-                                        try {
-                                            field.setAccessible(true);
-                                            if (field.getType() == LocalDateTime.class) {
-                                                var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                                                field.set(venda, LocalDate.parse(listaCamposPorLinha[indiceCampo],
-                                                        formatter).atStartOfDay());
-                                            } else if (field.getType() == String.class) {
-                                                field.set(venda, listaCamposPorLinha[indiceCampo]);
-                                            } else if (field.getType() == Usuario.class) {
-                                                var idUsuario = Long.parseLong(listaCamposPorLinha[indiceCampo]);
-                                                var usuarioResponse = usuarioClient.buscarPorId(idUsuario);
-                                                var usuario = new Usuario(idUsuario, usuarioResponse.getEmail(),
-                                                        usuarioResponse.getNome(), usuarioResponse.getRole());
-                                                field.set(venda, usuario);
-                                            } else if (field.getType() == List.class && field.getGenericType() instanceof ParameterizedType) {
-                                                String[] idsProdutos = listaCamposPorLinha[indiceCampo].split("-");
-                                                List<Long> listaDeIdsConvertidos = Arrays.stream(idsProdutos)
-                                                        .map(Long::parseLong)
-                                                        .collect(Collectors.toList());
-                                                List<Produto> produtosById = produtoService.buscarProdutosById(listaDeIdsConvertidos);
-                                                field.set(venda, produtosById);
-                                            }
-                                        } catch (IllegalAccessException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                }
-
-                            });
-                    listaParaPreencher.add(venda);
-                });
-        return listaParaPreencher;
-    }
-
-    private Map<String, Integer> mapearIndiceCampos(String[] campos) {
-        Map<String, Integer> indiceCampos = new HashMap<>();
-        for (int i = 0; i < campos.length; i++) {
-            indiceCampos.put(campos[i], i);
-        }
-        return indiceCampos;
     }
 
     public void gerarRelatorioProdutosVendidosByUsuario(Long idUsuario, HttpServletResponse response) {
@@ -198,9 +125,6 @@ public class RelatoriosService {
         return Collections.emptyList();
     }
 
-    public void lerArquivosTxtDiretorio() {
-
-    }
 
     private String produtosToString(List<Produto> produtos) {
         return produtos
